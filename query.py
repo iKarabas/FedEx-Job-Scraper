@@ -37,7 +37,7 @@ class MongoDB:
         self.collection = self.db[collection_name]
 
     def fetch_all(self):
-        return list(self.collection.find())
+        return [list(document.values()) for document in self.collection.find()]
 
     def fetch_column_names(self):
         # Check if there is at least one document in the collection
