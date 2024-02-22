@@ -1,3 +1,6 @@
+For a comprehensive overview and detailed specifications of the project, please refer to project_definition.pdf
+
+
 A video of the project: 
 [Video link](https://youtu.be/YthLCzunf-E)
 
