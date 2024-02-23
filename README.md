@@ -1,3 +1,26 @@
+
+To-Do List:
+
+Improve Code Quality
+
+build a better Scheduler for scraping timings
+
+
+Provide comprehensive documentation in the README.md file.
+
+
+
+# Project 
+This project is designed to scrape job postings from the FedEx career page. The scraper runs at 10-minute intervals, collecting data and storing it in both PostgreSQL and MongoDB databases. The implementation includes automatic duplicate checking and removal of job postings that are no longer available, leveraging Redis for efficient tracking.
+
+Key Features:
+
+Scheduled scraping of job postings at 10-minute intervals.
+Storage of cleaned data in PostgreSQL and MongoDB databases.
+Automatic duplicate detection and removal using Redis.
+Efficient algorithms to manage job availability tracking.
+
+
 For a comprehensive overview and detailed specifications of the project, please refer to project_definition.pdf
 
 
@@ -44,10 +67,6 @@ docker-compose build
 Once the building is complete, start the process by running:
 
 docker-compose up
-
-The process involves parsing JSON files. After parsing each job-data item, it checks whether it exists in the Redis cache. If it does, it skips the pipeline phase. The program processes files in the order `s01.json`, `s02.json`, and `s01.json`, each containing 100 job-data items. If the cache mechanism is successful, the databases will contain two hundred items. Even if it processed 300 job-data items, the number of stored job-data items is 200 because only 200 of them are unique .
-
-Duplicate checking is based on the rule that two jobs with the same title and exact location are considered duplicates. This checking-rule is open for improvement.
 
 ### Item.py Modifications
 
