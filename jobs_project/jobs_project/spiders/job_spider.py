@@ -41,6 +41,7 @@ class JobSpider(scrapy.Spider):
         super(JobSpider, self).__init__(*args, **kwargs)
         self.redis = redis.StrictRedis(host=self.redis_host, port=self.redis_port, db=self.redis_db)
         self.page_number = 1
+        self.log("Starting the spider.")
 
     
     def start_requests(self):
@@ -51,6 +52,11 @@ class JobSpider(scrapy.Spider):
         try:
             job_data = json.loads(response.text)
             jobs = job_data.get('jobs', [])
+            # Check if there are no jobs, stop the spider
+            if not jobs:
+                self.log("No more data to scrape. Stopping the spider.")
+                return
+            
             for job in jobs:
                 title = job.get('data', {}).get('title')
                 street_address = job.get('data', {}).get('street_address')

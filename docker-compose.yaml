@@ -24,7 +24,7 @@ services:
       - MONGO_USERNAME=ismail
       - MONGO_PASSWORD=passWORD
     working_dir: /app/jobs_project
-    command: sh -c "scrapy crawl job_spider && python ../query.py"
+    command: /bin/sh -c "../scraping_timer.sh"
 
   postgres_db:
     image: postgres:latest

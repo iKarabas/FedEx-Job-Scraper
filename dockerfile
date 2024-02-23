@@ -13,4 +13,9 @@ COPY . .
 
 ENV TWISTED_REACTOR twisted.internet.asyncioreactor.AsyncioSelectorReactor
 
-CMD ["scrapy", "crawl", "job_spider"]
+# Add a custom script for scheduling the command
+COPY scraping_timer.sh /app/scraping_timer.sh
+RUN chmod +x /app/scraping_timer.sh
+
+# Run the custom script
+CMD ["/app/scraping_timer.sh"]
