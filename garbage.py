@@ -42,7 +42,6 @@ class PostgreSQLMongoDBPipeline:
         create_table_query = """
                       CREATE TABLE IF NOT EXISTS raw_table (
             id SERIAL PRIMARY KEY,
-            job_identifier TEXT,
             slug VARCHAR(255),
             language VARCHAR(10),
             languages VARCHAR(255)[],
@@ -117,56 +116,38 @@ class PostgreSQLMongoDBPipeline:
             # Exclude the 'id' column from the list of columns and values
             id_column = 'id'
             values.pop(id_column, None)
-            mongodb_values = values
-
+            mongodb_values = values 
+                    
             # Convert nested structures to JSON for PostgreSQL
             for key, value in values.items():
                 if isinstance(value, dict):
                     values[key] = Json(value)
 
-            # Check if the item is already in the PostgreSQL database
-            identifier = values.get('job_identifier')  
-            if not self.is_item_in_database(identifier, spider):
-                # PostgreSQL insertion
-                insert_query = """
-                    INSERT INTO raw_table (
-                        {columns}
-                    ) VALUES (
-                        {values}
-                    )
-                """.format(
-                    columns=', '.join(values.keys()),
-                    values=', '.join('%({})s'.format(key) for key in values.keys())
+            # PostgreSQL insertion
+            insert_query = """
+                INSERT INTO raw_table (
+                    {columns}
+                ) VALUES (
+                    {values}
                 )
-
-                # PostgreSQL insertion
-                try:
-                    self.cursor.execute(insert_query, values)
-                    self.connection.commit()
-                except psycopg2.Error as e:
-                    self.connection.rollback()
-                    spider.log(f"Failed to insert item into PostgreSQL. Error: {e}")
-
-                # MongoDB insertion
-                try:
-                    self.mongo_collection.insert_one(mongodb_values)
-                except Exception as e:
-                    spider.log(f"Failed to insert item into MongoDB. Error: {e}")
-        return item
-    
-    def is_item_in_database(self, identifier, spider):
-        # Check if the item with the given identifier exists in the PostgreSQL database
-        select_query = """
-            SELECT EXISTS(
-                SELECT 1 FROM raw_table WHERE job_identifier = %(identifier)s
+            """.format(
+                columns=', '.join(values.keys()),
+                values=', '.join('%({})s'.format(key) for key in values.keys())
             )
-        """
-        try:
-            self.cursor.execute(select_query, {'identifier': identifier})
-            result = self.cursor.fetchone()[0]
-            return result
-        except psycopg2.Error as e:
-            spider.log(f"Failed to check item existence in PostgreSQL. Error: {e}")
-            return False
+
+            # PostgreSQL insertion
+            try:
+                self.cursor.execute(insert_query, values)
+                self.connection.commit()
+            except psycopg2.Error as e:
+                self.connection.rollback()
+                spider.log(f"Failed to insert item into PostgreSQL. Error: {e}")
+
+            # MongoDB insertion
+            try:
+                self.mongo_collection.insert_one(mongodb_values)
+            except Exception as e:
+                spider.log(f"Failed to insert item into MongoDB. Error: {e}")
+        return item
 
 

@@ -2,9 +2,14 @@ FROM python:3.8-slim
 
 WORKDIR /app
 
-COPY . .
+# Copy only the requirements file first
+COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application files
+COPY . .
 
 ENV TWISTED_REACTOR twisted.internet.asyncioreactor.AsyncioSelectorReactor
 

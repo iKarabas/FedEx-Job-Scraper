@@ -1,6 +1,7 @@
 import scrapy
 
 class JobItem(scrapy.Item):
+    job_identifier = scrapy.Field()
     slug = scrapy.Field()
     language = scrapy.Field()
     languages = scrapy.Field()
