@@ -57,16 +57,31 @@ class RedisManager:
             self.connection.close()
 
     def get_keys_with_value_and_prefix(self, key_prefix, target_value):
-        cursor = '0'
+        cursor = 0
         matching_keys = []
 
-        while cursor != '0':
+        # Convert target_value to bytes using utf-8 encoding
+        target_value_bytes = target_value.encode('utf-8')
+
+        while True:
             cursor, keys = self.connection.scan(cursor, match=f"{key_prefix}:*", count=1000)
-            for key in keys:
+            # Break out of the loop if no keys are found
+            if keys == []:
+                break
+
+            # Retrieve values for multiple keys in a single Redis round-trip
+            values = self.connection.mget(keys)
+            
+            for key, value in zip(keys, values):            
+                # Decode key to get identifier
                 identifier = key.decode('utf-8').split(":")[-1]
-                value = self.connection.get(key)
-                if value == target_value:
+    
+                # Check if the values match after converting to bytes
+                if value == target_value_bytes:
                     matching_keys.append(identifier)
 
+            # Break out of the loop when cursor is 0
+            if cursor == 0:
+                break
         return matching_keys
-    
+

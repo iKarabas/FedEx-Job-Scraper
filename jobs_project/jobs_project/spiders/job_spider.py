@@ -146,7 +146,6 @@ class JobSpider(scrapy.Spider):
     def delete_inactive_jobs_from_databases(self):
         # Get all keys from Redis identifiers set where the value is 'false'
         false_identifiers = self.redis_identifiers.get_keys_with_value_and_prefix(self.key_prefix_for_identifiers, 'false')
-        
         # Delete job_identifier elements from Redis based on keys in false_identifiers
         for identifier in false_identifiers:
             key_to_delete = f"{self.key_prefix_for_identifiers}:{identifier}"
@@ -157,8 +156,9 @@ class JobSpider(scrapy.Spider):
 
         # Delete items from MongoDB
         self.delete_inactive_jobs_from_mongodb(false_identifiers)
-      
-    
+        
+        print(f"Number of deleted closed job postings: {len(false_identifiers)}")
+        print(f"Deleted job postings: {false_identifiers}")
     def delete_inactive_jobs_from_postgresql(self, false_identifiers):
         # Check if there are any false identifiers
         if not false_identifiers:

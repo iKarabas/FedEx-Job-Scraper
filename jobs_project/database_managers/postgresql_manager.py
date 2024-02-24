@@ -66,8 +66,4 @@ class PostgreSQLManager:
         self.connection.commit()
         self.connection.close()
 
-# Example Usage:
-# postgres_manager = PostgreSQLManager(host='localhost', port=5432, database='example_db', user='example_user', password='example_password')
-# postgres_manager.execute_query('CREATE TABLE IF NOT EXISTS example_table (id SERIAL PRIMARY KEY, name VARCHAR);')
-# postgres_manager.execute_query('INSERT INTO example_table (name) VALUES (%s);', ('John Doe',))
-# postgres_manager.close_connection()
+
