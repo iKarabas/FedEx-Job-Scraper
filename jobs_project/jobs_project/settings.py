@@ -37,6 +37,9 @@ ITEM_PIPELINES = {
     'jobs_project.pipelines.PostgreSQLMongoDBPipeline': 300,
 }
 
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = int(os.getenv('REDIS_PORT'))
+REDIS_DB = os.getenv('REDIS_DB')
 
 # Configure Redis as a caching backend
 REDIS_URL = 'redis://redis:6379/0' 

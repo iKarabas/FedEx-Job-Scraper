@@ -1,43 +1,16 @@
-import psycopg2
 from psycopg2.extras import Json
-from pymongo import MongoClient
 from jobs_project.items import JobItem
+from database_managers.postgresql_manager import PostgreSQLManager
+from database_managers.mongodb_manager import MongoDBManager
 
 class PostgreSQLMongoDBPipeline:
-    def __init__(self, db_settings, mongo_settings):
-        self.db_settings = db_settings
-        self.mongo_settings = mongo_settings
-        self.connection = None
-        self.cursor = None
-        self.mongo_client = None
-        self.mongo_db = None
-        self.mongo_collection = None
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        settings = crawler.settings
-        db_settings = {
-            'host': settings.get('POSTGRES_HOST'),
-            'port': settings.get('POSTGRES_PORT'),
-            'database': settings.get('POSTGRES_DB'),
-            'user': settings.get('POSTGRES_USER'),
-            'password': settings.get('POSTGRES_PASSWORD'),
-        }
-        mongo_settings = {
-            'host': settings.get('MONGO_HOST'),
-            'port': settings.get('MONGO_PORT'),
-            'database': settings.get('MONGO_DB'),
-            'collection': settings.get('MONGO_COLLECTION_NAME'),
-            'user': settings.get('MONGO_USERNAME'),
-            'password': settings.get('MONGO_PASSWORD'),
-        }
-        return cls(db_settings, mongo_settings)
+    def __init__(self):
+        # Create instances of the database managers
+        self.postgres_manager = PostgreSQLManager()
+        self.mongo_manager = MongoDBManager()
 
     def open_spider(self, spider):
         # PostgreSQL
-        self.connection = psycopg2.connect(**self.db_settings)
-        self.cursor = self.connection.cursor()
-
         # Create the raw_table if it doesn't exist
         create_table_query = """
                       CREATE TABLE IF NOT EXISTS raw_table (
@@ -96,20 +69,8 @@ class PostgreSQLMongoDBPipeline:
         );
         
         """
-        self.cursor.execute(create_table_query)
-        self.connection.commit()
-
-        # MongoDB with authentication
-        mongo_uri = f"mongodb://{self.mongo_settings['user']}:{self.mongo_settings['password']}@{self.mongo_settings['host']}:{self.mongo_settings['port']}"
-        self.mongo_client = MongoClient(mongo_uri)
-        self.mongo_db = self.mongo_client[self.mongo_settings['database']]
-        self.mongo_collection = self.mongo_db[self.mongo_settings['collection']]
-
-
-    def close_spider(self, spider):
-        self.connection.commit()
-        self.connection.close()
-        self.mongo_client.close()
+        self.postgres_manager.create_table(create_table_query)
+ 
 
     def process_item(self, item, spider):
         if isinstance(item, JobItem):
@@ -125,31 +86,16 @@ class PostgreSQLMongoDBPipeline:
                     values[key] = Json(value)
     
             # PostgreSQL insertion
-            insert_query = """
-                INSERT INTO raw_table (
-                    {columns}
-                ) VALUES (
-                    {values}
-                )
-            """.format(
-                columns=', '.join(values.keys()),
-                values=', '.join('%({})s'.format(key) for key in values.keys())
-            )
-
-            # PostgreSQL insertion
-            try:
-                self.cursor.execute(insert_query, values)
-                self.connection.commit()
-            except psycopg2.Error as e:
-                self.connection.rollback()
-                spider.log(f"Failed to insert item into PostgreSQL. Error: {e}")
-
+            self.postgres_manager.insert_values(values)
+            
             # MongoDB insertion
-            try:
-                self.mongo_collection.insert_one(mongodb_values)
-            except Exception as e:
-                spider.log(f"Failed to insert item into MongoDB. Error: {e}")
+            self.mongo_manager.insert_values(mongodb_values)
         return item
+    
+    
+    def close_spider(self, spider):
+        self.postgres_manager.close_connection()
+        self.mongo_manager.close_connection()
     
 
 

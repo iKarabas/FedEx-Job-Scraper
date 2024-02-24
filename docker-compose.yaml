@@ -23,6 +23,9 @@ services:
       - MONGO_COLLECTION_NAME=raw_collection
       - MONGO_USERNAME=ismail
       - MONGO_PASSWORD=passWORD
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     working_dir: /app/jobs_project
     command: /bin/sh -c "../scraping_timer.sh"
 
