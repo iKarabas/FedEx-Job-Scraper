@@ -88,7 +88,9 @@ After the parsing process is complete, `query.py` extracts all the data from the
 
 # Testing
 The current crawling speed averages 120 pages per minute. This speed improves after the initial scrape, thanks to a checking mechanism that utilizes Redis.
+
 Verifying the duplication process is straightforward. After the second scrape, you'll notice that entries are only stored in the databases if there are new updates on the website job postings.
+
 To test the deletion process, you have two options. The first is to modify the job_identifier field of an existing entry or create a new one in the PostgreSQL database using the pgadmin application. The second option is to be patient enough for the job postings on the website to undergo updates. You can observe the number and job_identifier of the deleted closed job postings on the terminal at the end of the scraping process.
 
 
