@@ -56,7 +56,7 @@ class JobSpider(scrapy.Spider):
     
     def start_requests(self):
         url = self.base_url
-        # First url was for featured job, now change it to get the regular jobs
+        # First url was for featured jobs, now change it to get the regular jobs
         self.base_url = 'https://careers.fedex.com/api/jobs?page={}&sortBy=relevance&descending=false&internal=false&deviceId=undefined&domain=fedex.jibeapply.com'
         yield scrapy.Request(url=url, callback=self.parse_json_response)
 
@@ -119,7 +119,7 @@ class JobSpider(scrapy.Spider):
                 postgres_manager.close_connection()
                 identifiers = [row[0] for row in data]
                 
-                # Store identifiers in Redis set with initial status 'false' and key prefix
+                # Store identifiers in Redis set with initial value 'false' and key prefix
                 for identifier in identifiers:
                     redis_key = f"{self.key_prefix_for_identifiers}:{identifier}"
                     self.redis_identifiers.set_value(redis_key, 'false')
@@ -129,17 +129,17 @@ class JobSpider(scrapy.Spider):
 
         
     def is_item_in_the_database(self,identifier):
-        # check if the item already in the database
+        # check if the item already in the redis structure for job_identifiers
         redis_key = f"{self.key_prefix_for_identifiers}:{identifier}"
         return self.redis_identifiers.exists(redis_key)
         
     def is_item_cached(self, identifier):
-        # Check if the identifier is present in Redis cache
+        # Check if the identifier is present in Redis cache for job postings
         cache_key = f"{self.key_prefix_for_job_cache}:{identifier}"
         return self.redis_cache.exists(cache_key)
     
     def cache_item(self, identifier):
-        # Cache the identifier in Redis
+        # Cache the identifier in Redis cache for job postings
         cache_key = f"{self.key_prefix_for_job_cache}:{identifier}"
         self.redis_cache.set_value(cache_key, 1)
 
@@ -159,6 +159,8 @@ class JobSpider(scrapy.Spider):
         
         print(f"Number of deleted closed job postings: {len(false_identifiers)}")
         print(f"Deleted job postings: {false_identifiers}")
+        
+        
     def delete_inactive_jobs_from_postgresql(self, false_identifiers):
         # Check if there are any false identifiers
         if not false_identifiers:
@@ -178,6 +180,7 @@ class JobSpider(scrapy.Spider):
         
         # Close database connection
         postgres_manager.close_connection()
+        
         
     def delete_inactive_jobs_from_mongodb(self, false_identifiers):
         # Check if there are any false identifiers

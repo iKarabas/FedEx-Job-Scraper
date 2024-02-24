@@ -1,4 +1,4 @@
-SLEEP_TIME=120  # Sleep time in seconds
+SLEEP_TIME=300  # Sleep time in seconds
 
 # ANSI color codes
 GREEN='\033[0;32m'

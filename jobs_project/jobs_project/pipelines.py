@@ -12,8 +12,8 @@ class PostgreSQLMongoDBPipeline:
     def open_spider(self, spider):
         # PostgreSQL
         # Create the raw_table if it doesn't exist
-        create_table_query = """
-                      CREATE TABLE IF NOT EXISTS raw_table (
+        create_table_query = f"""
+                      CREATE TABLE IF NOT EXISTS {self.postgres_manager.table_name} (
             id SERIAL PRIMARY KEY,
             job_identifier TEXT,
             slug VARCHAR(255),

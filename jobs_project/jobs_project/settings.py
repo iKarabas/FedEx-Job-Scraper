@@ -18,6 +18,7 @@ FEED_EXPORT_ENCODING = "utf-8"
 # Set to 'DEBUG' for more details
 LOG_LEVEL = 'INFO'
 
+# PostgreSQL parameters
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 POSTGRES_PORT = int(os.getenv('POSTGRES_PORT'))
 POSTGRES_DB = os.getenv('POSTGRES_DB')
@@ -25,6 +26,7 @@ POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 POSTGRES_TABLE_NAME = os.getenv('POSTGRES_TABLE_NAME')
 
+# MongoDB parameters
 MONGO_HOST = os.getenv('MONGO_HOST')
 MONGO_PORT = int(os.getenv('MONGO_PORT'))
 MONGO_DB = os.getenv('MONGO_DB')
@@ -37,6 +39,7 @@ ITEM_PIPELINES = {
     'jobs_project.pipelines.PostgreSQLMongoDBPipeline': 300,
 }
 
+# REDIS parameters
 REDIS_HOST = os.getenv('REDIS_HOST')
 REDIS_PORT = int(os.getenv('REDIS_PORT'))
 REDIS_DB = os.getenv('REDIS_DB')
