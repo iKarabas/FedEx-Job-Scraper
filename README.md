@@ -4,7 +4,7 @@ This project is designed to scrape job postings from the FedEx career page. The 
 
 Key Features:
 
-Scheduled scraping of job postings at 10-minute intervals.
+Scheduled scraping of job postings at 5-minute intervals.
 Storage of cleaned data in PostgreSQL and MongoDB databases.
 Automatic duplicate detection and removal using Redis.
 Efficient algorithms to manage job availability tracking.
